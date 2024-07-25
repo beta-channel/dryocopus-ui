@@ -61,12 +61,12 @@
             <x-table>
                 <thead>
                 <tr>
-                    <th scope="col"></th>
-                    <th scope="col">名称</th>
-                    <th scope="col">リンク</th>
-                    <th scope="col">実行プラン</th>
-                    <th scope="col" class="text-center">実行日程</th>
-                    <th scope="col" class="text-center">状態</th>
+                    <th scope="col" class="text-nowrap"></th>
+                    <th scope="col" class="text-nowrap">名称</th>
+                    <th scope="col" class="text-nowrap">リンク</th>
+                    <th scope="col" class="text-nowrap">実行プラン</th>
+                    <th scope="col" class="text-center text-nowrap">実行日程</th>
+                    <th scope="col" class="text-center text-nowrap">状態</th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
@@ -83,7 +83,7 @@
                                 -
                             @endif
                         </td>
-                        <td class="text-center task-schedule" data-preparing="{{ $task->start_time !== null && now() < $task->start_time }}">
+                        <td class="text-center text-nowrap task-schedule" data-preparing="{{ $task->start_time !== null && now() < $task->start_time }}">
                             @if($task->start_time !== null || $task->end_time !== null)
                                 {{ format_date($task->start_time) }} ~ {{ format_date($task->end_time) }}
                             @else

@@ -29,30 +29,32 @@
             <x-table>
                 <thead>
                 <tr>
-                    <th scope="col">実行開始</th>
-                    <th scope="col">実行終了</th>
-                    <th scope="col">リンク</th>
-                    <th scope="col" class="text-center">実行プラン</th>
-                    <th scope="col" class="text-center">終了原因</th>
-                    {{--<th scope="col" class="text-center">ログ</th>--}}
+                    <th scope="col" class="text-center text-nowrap">実行開始</th>
+                    <th scope="col" class="text-center text-nowrap">実行終了</th>
+                    <th scope="col" class="text-nowrap">リンク</th>
+                    <th scope="col" class="text-center text-nowrap">実行プラン</th>
+                    <th scope="col" class="text-center text-nowrap">終了原因</th>
+                    {{--<th scope="col" class="text-center text-nowrap">ログ</th>--}}
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($executions as $execution)
                     <tr>
-                        <td>{{ format_date($execution->start_time, config('app.format.datetime')) }}</td>
-                        <td>
+                        <td class="text-center text-nowrap">
+                            <span class="d-block text-start">@datetime(format_date($execution->start_time, config('app.format.datetime')))</span>
+                        </td>
+                        <td class="text-center text-nowrap">
                             @if($execution->finish_time === null)
                                 <span class="badge bg-danger" style="width: 5rem"><i class="fas fa-forward me-2"></i>実行中</span>
                             @else
-                                {{ format_date($execution->finish_time, config('app.format.datetime')) }}
+                                <span class="d-block text-start">@datetime(format_date($execution->finish_time, config('app.format.datetime')))</span>
                             @endif
                         </td>
                         <td class="text-wrap">
                             <a href="{{ $execution->link }}" target="_blank">{{ $execution->link }}</a>
                             <p class="m-0 fs--2 text-muted">{{ $execution->task_name }}</p>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center text-nowrap">
                             <a href="#modal-plan" class="btn btn-sm btn-primary fs--2 fw-bold px-3" data-bs-toggle="modal" data-plan="{{ json_encode($execution->plan) }}">プラン確認</a>
                         </td>
                         <td class="text-center">
