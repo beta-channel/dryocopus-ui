@@ -24,13 +24,14 @@ class ExecutionFinishRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
-            'task_id' => 'required|integer',
-            'finish_time' => 'required|date_format:'.config('app.format.datetime'),
-            'succeed' => 'nullable',
-            'failed' => 'nullable',
-            'reason' => 'nullable',
-            'log_path' => 'nullable',
+            'process_id' => 'required|string',
+            'finish_time' => 'required|date_format:Y-m-d H:i:s',
+            'status' => 'required|in:stopped',
+            'finished_as' => 'required|in:normal,schedule,error',
+            'statistic' => 'required|array:success,failure,cost',
+            'statistic.success' => 'required|integer',
+            'statistic.failure' => 'required|integer',
+            'statistic.cost' => 'required|numeric',
         ];
     }
 

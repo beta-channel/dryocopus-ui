@@ -6,7 +6,7 @@ use App\Http\Requests\TaskBatchOperationRequest;
 use App\Http\Requests\TaskSetRequest;
 use App\Repositories\PlanRepository;
 use App\Repositories\TaskRepository;
-use App\Services\SpotService;
+use App\Services\ProcessService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,9 +19,9 @@ class TaskController extends Controller
 
     protected PlanRepository $plan;
 
-    protected SpotService $spot;
+    protected ProcessService $spot;
 
-    public function __construct(TaskRepository $task, PlanRepository $plan, SpotService $spot)
+    public function __construct(TaskRepository $task, PlanRepository $plan, ProcessService $spot)
     {
         $this->task = $task;
         $this->plan = $plan;

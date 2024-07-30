@@ -70,17 +70,32 @@ class ExecutionRepository
     }
 
     /**
+     * タスクIDで実行中の履歴を取得
+     * @param int $task_id
+     * @return Execution|null
+     */
+    public function getRunningByTaskId(int $task_id): ?Execution
+    {
+        return Execution::query()
+            ->where('task_id', $task_id)
+            ->whereNull('finish_time')
+            ->first();
+    }
+
+    /**
      * 実行履歴を作成
-     * @param array $data
+     * @param Task $task
+     * @param $start_time
      * @return Execution
      */
-    public function create(array $data): Execution
+    public function createFromTask(Task $task, $start_time): Execution
     {
         $execution = new Execution();
-        $execution->task_name = $data['task_name'];
-        $execution->link = $data['link'];
-        $execution->plan = $data['plan'];
-        $execution->start_time = to_date($data['start_time'], config('app.format.datetime'), false);
+        $execution->task_id = $task->id;
+        $execution->task_name = $task->name;
+        $execution->link = $task->link;
+        $execution->plan = $task->plan->content;
+        $execution->start_time = to_date($start_time, config('app.format.datetime'), false);
         $execution->save();
         return $execution;
     }
@@ -102,5 +117,18 @@ class ExecutionRepository
         $execution->save();
 
         return $execution;
+    }
+
+    /**
+     * 成功・失敗カウントアップ
+     * @param string $attribute
+     * @param Execution $execution
+     * @return void
+     */
+    public function countUp(string $attribute, Execution $execution): void
+    {
+        Execution::query()
+            ->whereKey($execution->id)
+            ->increment($attribute);
     }
 }

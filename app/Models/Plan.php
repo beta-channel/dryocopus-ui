@@ -59,7 +59,8 @@ class Plan extends Model
                     && count($schedule['time']) === 2 && count($schedule['interval']) === 2
                     && is_string($schedule['time'][0]) && is_string($schedule['time'][1])
                     && preg_match('/^\d\d:\d\d$/', $schedule['time'][0]) && preg_match('/^\d\d:\d\d$/', $schedule['time'][1])
-                    && is_int($schedule['interval'][0]) && is_int($schedule['interval'][1]);
+                    && is_int($schedule['interval'][0]) && is_int($schedule['interval'][1])
+                    && $schedule['interval'][0] >= 0 && $schedule['interval'][1] >= 0;
             });
     }
 }

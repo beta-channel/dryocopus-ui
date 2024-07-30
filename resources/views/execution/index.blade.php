@@ -34,7 +34,7 @@
                     <th scope="col" class="text-nowrap">リンク</th>
                     <th scope="col" class="text-center text-nowrap">実行プラン</th>
                     <th scope="col" class="text-center text-nowrap">終了原因</th>
-                    {{--<th scope="col" class="text-center text-nowrap">ログ</th>--}}
+                    <th scope="col" class="text-center text-nowrap">運用料</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -63,12 +63,13 @@
                             @elseif($execution->finished_as === EXECUTION_FINISHED_AS_NORMAL)
                                 <span class="fw-bold fs--1">{{ __('messages.execution_finished_as.'.EXECUTION_FINISHED_AS_NORMAL) }}</span>
                             @elseif($execution->finished_as === EXECUTION_FINISHED_AS_SCHEDULE)
-                                <span class="text-info fw-bold fs--1">{{ __('messages.execution_finished_as.'.EXECUTION_FINISHED_AS_SCHEDULE) }}</span>
+                                <span class="text-warning fw-bold fs--1">{{ __('messages.execution_finished_as.'.EXECUTION_FINISHED_AS_SCHEDULE) }}</span>
                             @else
                                 <span>-</span>
                             @endif
                             <p class="text-nowrap fs--2 mt-1 mb-0"><span class="text-success">{{ number_format($execution->succeed) }} 成功</span> / <span class="text-danger">{{ number_format($execution->failed) }} 失敗</span></p>
                         </td>
+                        <td class="text-center">{{ $execution->cost !== null ? '¥'.number_format($execution->cost, 2) : '-' }}</td>
                     </tr>
                 @endforeach
                 </tbody>

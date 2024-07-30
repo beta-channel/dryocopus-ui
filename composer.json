@@ -1,9 +1,9 @@
 {
-    "name": "beta-channel/dryocopus",
+    "name": "dryocopus/ui",
     "type": "project",
-    "description": "Dryocopus訪問テスト管理システム.",
+    "description": "Dryocopus接続検測管理システムUI.",
     "keywords": ["dryocopus"],
-    "license": "proprietary",
+    "license": "MIT",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.9",

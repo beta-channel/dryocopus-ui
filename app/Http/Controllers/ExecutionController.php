@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ExecutionFailedRequest;
 use App\Http\Requests\ExecutionFinishRequest;
 use App\Http\Requests\ExecutionStartRequest;
+use App\Http\Requests\ExecutionSucceedRequest;
 use App\Repositories\ExecutionRepository;
 use App\Repositories\TaskRepository;
 use Illuminate\Contracts\View\View;
@@ -47,22 +49,22 @@ class ExecutionController extends Controller
      */
     public function start(ExecutionStartRequest $request): JsonResponse
     {
-        $data = $request->validated();
-
-        $task = $this->task->find($data['task_id']);
+        $task_id = $request->validated('process_id');
+        $task = $this->task->find($task_id);
         if ($task === null) {
-            abort(400, __('messages.task.not_exists', ['task_id' => $data['task_id']]));
+            abort(400, __('messages.task.not_exists', ['task_id' => $task_id]));
         }
         if (in_array($task->status, [TASK_STATUS_RUNNING, TASK_STATUS_STOPPING])) {
             abort(400, __('messages.task.already_running'));
         }
 
-        $execution = DB::transaction(function () use ($data, $task) {
+        $start_time = $request->validated('start_time');
+        DB::transaction(function () use ($task, $start_time) {
             $this->task->set(['status' => TASK_STATUS_RUNNING], $task);
-            return $this->execution->create($data);
+            $this->execution->createFromTask($task, $start_time);
         });
 
-        return response()->json(['id' => $execution->id]);
+        return response()->json();
     }
 
     /**
@@ -73,25 +75,55 @@ class ExecutionController extends Controller
     public function finish(ExecutionFinishRequest $request): JsonResponse
     {
         $data = $request->validated();
-
-        $execution = $this->execution->find($data['id']);
+        $task_id = $data['process_id'];
+        $execution = $this->execution->getRunningByTaskId($task_id);
         if ($execution === null) {
-            abort(400, __('messages.execution.not_exists', ['execution_id' => $data['id']]));
+            abort(400, __('messages.execution.not_exists', ['task_id' => $task_id]));
         }
 
-        $data['finish_time'] = to_date($data['finish_time'], config('app.format.datetime'), false);
-        $data['finished_as'] = match ($data['reason']) {
-            'error' => EXECUTION_FINISHED_AS_ERROR,
-            'normal' => EXECUTION_FINISHED_AS_NORMAL,
-            'schedule' => EXECUTION_FINISHED_AS_SCHEDULE,
-            default => null
-        };
+        $this->execution->update([
+            'finish_time' => to_date($data['finish_time'], 'Y-m-d H:i:s', false),
+            'finished_as' => match ($data['finished_as']) {
+                'error' => EXECUTION_FINISHED_AS_ERROR,
+                'normal' => EXECUTION_FINISHED_AS_NORMAL,
+                'schedule' => EXECUTION_FINISHED_AS_SCHEDULE,
+                default => null
+            },
+            'succeed' => $data['statistic']['success'],
+            'failed' => $data['statistic']['failure'],
+            'cost' => $data['statistic']['cost'],
+        ], $execution);
 
-        $this->execution->update($data, $execution);
-        $task = $this->task->find($data['task_id']);
+        $task = $this->task->find($task_id);
         if ($task !== null) {
             $this->task->set(['status' => TASK_STATUS_STOPPED], $task);
         }
+
+        return response()->json();
+    }
+
+    public function succeed(ExecutionSucceedRequest $request): JsonResponse
+    {
+        $task_id = $request->validated('process_id');
+        $execution = $this->execution->getRunningByTaskId($task_id);
+        if ($execution === null) {
+            abort(400, __('messages.execution.not_exists', ['task_id' => $task_id]));
+        }
+
+        $this->execution->countUp('succeed', $execution);
+
+        return response()->json();
+    }
+
+    public function failed(ExecutionFailedRequest $request): JsonResponse
+    {
+        $task_id = $request->validated('process_id');
+        $execution = $this->execution->getRunningByTaskId($task_id);
+        if ($execution === null) {
+            abort(400, __('messages.execution.not_exists', ['task_id' => $task_id]));
+        }
+
+        $this->execution->countUp('failed', $execution);
 
         return response()->json();
     }

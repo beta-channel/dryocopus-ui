@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Task;
-use App\Services\SpotService;
+use App\Services\ProcessService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskRepository
 {
-    protected SpotService $spot;
+    protected ProcessService $process;
 
-    public function __construct(SpotService $spot)
+    public function __construct(ProcessService $process)
     {
-        $this->spot = $spot;
+        $this->process = $process;
     }
 
     /**
@@ -225,13 +225,13 @@ class TaskRepository
         $task_list = $tasks->map(function ($task) {
             return [
                 'id' => $task->id,
-                'name' => $task->name,
                 'link' => $task->link,
                 'plan' => $task->plan->content,
+                'end_time' => $task->end_time,
             ];
         })->toArray();
 
-        $results = $this->spot->requestStartUp($task_list);
+        $results = $this->process->requestStartUp($task_list);
 
         // 失敗したタスクの状態を戻す
         $origin_tasks = $tasks->keyBy('id');
@@ -274,10 +274,9 @@ class TaskRepository
     /**
      * タスク停止
      * @param Collection $tasks
-     * @param int $as
      * @return array<int, int> task_id => task_status
      */
-    public function stop(Collection $tasks, int $as = EXECUTION_FINISHED_AS_NORMAL): array
+    public function stop(Collection $tasks): array
     {
         $task_id_list = $tasks->pluck('id');
 
@@ -292,7 +291,7 @@ class TaskRepository
             ->where('status', '!=', TASK_STATUS_STOPPED)
             ->pluck('id');
 
-        $result = $this->spot->requestStop($stopping_id_list->toArray(), $as);
+        $result = $this->process->requestStop($stopping_id_list->toArray());
 
         if ($result) {
             Task::query()

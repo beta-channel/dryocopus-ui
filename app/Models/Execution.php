@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
  * 実行履歴
  * @property int $id
+ * @property int $task_id FK.タスクID
  * @property string $task_name タスク名称
  * @property string $link リンク
  * @property array $plan プラン
@@ -18,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int $succeed 成功回数
  * @property int $failed 失敗回数
  * @property int $finished_as 終了原因
- * @property string $log_path ログパス
+ * @property float $cost 運用料金
  * @property string $note
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -49,7 +51,7 @@ class Execution extends Model
         'succeed',
         'failed',
         'finished_as',
-        'log_path',
+        'cost',
     ];
 
     /**
@@ -63,6 +65,11 @@ class Execution extends Model
             'start_time' => 'datetime:'.config('app.format.datetime'),
             'finish_time' => 'datetime:'.config('app.format.datetime'),
         ];
+    }
+
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'task_id');
     }
 
     protected function plan(): Attribute

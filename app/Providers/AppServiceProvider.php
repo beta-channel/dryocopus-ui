@@ -5,13 +5,11 @@ namespace App\Providers;
 use App\Repositories\ExecutionRepository;
 use App\Repositories\PlanRepository;
 use App\Repositories\TaskRepository;
-use App\Services\SpotService;
+use App\Services\ProcessService;
 use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\View\View;
-
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Validation\UnauthorizedException;
+use Illuminate\View\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         PlanRepository::class,
         ExecutionRepository::class,
         // Services
-        SpotService::class,
+        ProcessService::class,
     ];
 
     /**
@@ -43,7 +41,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Facades\View::composer('layout', function (View $view) {
-            $view->with('nav');
+            if (!$view->offsetExists('nav')) {
+                $view->with('nav');
+            }
             $view->with('username', Facades\Auth::user()->name);
         });
 

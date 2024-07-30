@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 
-class ExecutionStartRequest extends FormRequest
+class ExecutionSucceedRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,13 +23,7 @@ class ExecutionStartRequest extends FormRequest
     {
         return [
             'process_id' => 'required|string',
-            'start_time' => 'required|date_format:Y-m-d H:i:s',
-            'status' => 'required|in:started',
+            'status' => 'required|in:process_succeed',
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new ValidationException($validator, response()->json(['errors' => $validator->errors()], 422));
     }
 }
