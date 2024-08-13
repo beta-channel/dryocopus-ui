@@ -162,6 +162,25 @@ class TaskRepository
     }
 
     /**
+     * 実行可能な準備中のタスクを取得
+     * @return Collection<Task>
+     */
+    public function listForScheduleStart(): Collection
+    {
+        return Task::query()
+            ->where('status', TASK_STATUS_PREPARING)
+            ->whereNotNull('start_time')
+            ->where('start_time', '<=', now())
+            ->where(function (Builder $query) {
+                $query
+                    ->orWhereNull('end_time')
+                    ->orWhere('end_time', '>', now());
+            })
+            ->whereNotNull('plan_id')
+            ->get();
+    }
+
+    /**
      * IDでタスク情報取得
      * @param int $id
      * @param array $conditions
