@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 class ProcessService
 {
-    protected string $endpoint = "https://endpoint.dryocopus.com/api/v1";
+    protected string $endpoint = "https://endpoint.dryocopus.jp/api/v1";
 
     /**
      * 起動リクエスト
